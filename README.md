@@ -1,41 +1,42 @@
-````markdown
 # 📦 mbqueue
 
-A **high-performance, MongoDB-backed job queue** for Node.js, designed for **high-volume job insertion, parallel processing, memory-efficient batching, and distributed deployments**.  
+**mbqueue** is a **high-performance, MongoDB-backed job queue for Node.js**, designed for **high-volume job insertion, parallel processing, memory-efficient batching, and distributed deployments**.
 
-`mbqueue` is lightweight, robust, and scalable, ideal for **emails, notifications, background tasks, and more**.
+It is lightweight, robust, and scalable, making it ideal for **emails, notifications, background tasks, and more**.
 
 ---
 
 ## 🚀 Features
 
-- **High-volume job insertion**: Rapidly add thousands of jobs per second.
-- **Batch processing with adaptive flushing**: Supports batching jobs in memory and flushing them to MongoDB efficiently.
-- **Concurrent workers**: Process jobs in parallel using multiple workers per job type.
-- **Memory management**: Monitors system memory and triggers emergency flushes if needed.
-- **Robust error handling**: Retries failed jobs with exponential backoff and tracks job attempts.
-- **Job prioritization**: Supports priority-based processing.
-- **Distributed architecture**: Add jobs from multiple servers and process jobs across multiple servers without duplication.
-- **Scalable**: Easily scale horizontally by adding more worker servers.
-- **MongoDB indexes**: Optimized for fast job retrieval and processing.
-- **Real-time statistics**: Get queue stats, job counts, memory usage, and processing performance.
+* High-volume job insertion: Rapidly add thousands of jobs per second.
+* Batch processing with adaptive flushing: Jobs are batched in memory and flushed efficiently to MongoDB.
+* Concurrent workers: Process jobs in parallel using multiple workers per job type.
+* Memory management: Monitors system memory and triggers emergency flushes if needed.
+* Robust error handling: Retries failed jobs with exponential backoff and tracks job attempts.
+* Job prioritization: Supports priority-based processing.
+* Distributed architecture: Add jobs from multiple servers and process them across multiple servers without duplication.
+* Scalable: Easily scale horizontally by adding more worker servers.
+* MongoDB indexes: Optimized for fast job retrieval and processing.
+* Real-time statistics: Get queue stats, job counts, memory usage, and performance metrics.
 
 ---
 
 ## 📦 Installation
 
-```bash
-npm install mbqueue
-````
+Install via npm:
 
-* GitHub: [https://github.com/ManojGowda89/mbqueue](https://github.com/ManojGowda89/mbqueue)
-* NPM: [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
+```
+npm install mbqueue
+```
+
+GitHub: [https://github.com/ManojGowda89/mbqueue](https://github.com/ManojGowda89/mbqueue)
+NPM: [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
 
 ---
 
 ## 🛠️ Usage
 
-### 1. Initialize QueueManager
+### Initialize QueueManager
 
 ```js
 const QueueManager = require('mbqueue');
@@ -49,9 +50,7 @@ const queue = new QueueManager('mongodb://localhost:27017', 'job_queue', {
 await queue.connect();
 ```
 
----
-
-### 2. Add Jobs
+### Add Jobs
 
 ```js
 // Email job
@@ -61,9 +60,7 @@ await queue.addJob('email', { name: 'John Doe', email: 'john@example.com' });
 await queue.addJob('notification', { userId: 1, message: 'Alert!' }, { priority: 5 });
 ```
 
----
-
-### 3. Start Processing Jobs
+### Start Processing Jobs
 
 ```js
 // Email processor
@@ -84,9 +81,7 @@ queue.startProcessing('notification', async (data) => {
 });
 ```
 
----
-
-### 4. Get Queue Stats
+### Get Queue Stats
 
 ```js
 const stats = queue.getStats();
@@ -100,55 +95,48 @@ console.log(counts);
 
 ## 🏗️ Distributed Setup
 
-`mbqueue` supports **multi-server producers and workers**:
+**mbqueue** supports multi-server producers and workers:
 
-* **Central MongoDB** as the single source of truth.
-* **Multiple producers** can add jobs concurrently.
-* **Multiple workers** across servers process jobs without duplication.
+* **Central MongoDB** serves as the single source of truth.
+* Multiple producers can add jobs concurrently.
+* Workers across multiple servers process jobs without duplication.
 
-### Architecture Diagram
+**Architecture Diagram:**
 
 ```
-         ┌─────────────┐        ┌─────────────┐
-         │ Producer 1  │        │ Producer 2  │
-         └──────┬──────┘        └──────┬──────┘
-                │                     │
-                ▼                     ▼
-          ┌─────────────────────────────┐
-          │         MongoDB             │
-          │     (Central Queue DB)      │
-          └─────────────┬──────────────┘
-                        │
-       ┌────────────────┼────────────────┐
-       ▼                ▼                ▼
-┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-│ Worker 1    │  │ Worker 2    │  │ Worker 3    │
-│ (Server A)  │  │ (Server B)  │  │ (Server C)  │
-└─────────────┘  └─────────────┘  └─────────────┘
+         Producer 1       Producer 2
+             │                │
+             ▼                ▼
+           MongoDB (Central Queue)
+             │
+   ┌─────────┼─────────┐
+   ▼         ▼         ▼
+Worker 1   Worker 2   Worker 3
+(Server A) (Server B) (Server C)
 ```
 
 ---
 
 ## 🔹 Job Lifecycle
 
-1. **Job creation** → Added to **memory batch**.
-2. **Batch flush** → Flushed to **MongoDB** when batch size or timeout is reached.
-3. **Processing** → Workers claim pending jobs atomically and update status to `processing`.
-4. **Completion** → Successfully processed jobs moved to `completed_jobs`.
-5. **Failure/Retry** → Failed jobs retried with **exponential backoff** until `maxAttempts`; otherwise moved to `failed_jobs`.
+1. Job creation: Added to an in-memory batch.
+2. Batch flush: Flushed to MongoDB when batch size or timeout is reached.
+3. Processing: Workers claim pending jobs atomically and update status to `processing`.
+4. Completion: Successfully processed jobs moved to `completed_jobs`.
+5. Failure/Retry: Failed jobs retried with exponential backoff until `maxAttempts`, else moved to `failed_jobs`.
 
 ---
 
 ## ⚡ High-Volume & Memory Management
 
-* Supports **hundreds of thousands of jobs in memory**.
-* **Memory monitoring** ensures stability:
+* Handles hundreds of thousands of jobs in memory.
+* Memory monitoring ensures stability, including:
 
-  * Automatic batch flush when memory usage exceeds 80%.
+  * Automatic batch flush when memory exceeds 80%.
   * Peak memory usage tracking.
-* **Chunked batch insertion** avoids MongoDB document size limits.
+* Chunked batch insertion avoids MongoDB document size limits.
 * Adaptive polling reduces DB load when the queue is empty.
-* Supports **rapid job insertion**, e.g., thousands of jobs per second.
+* Supports rapid job insertion, e.g., thousands of jobs per second.
 
 ---
 
@@ -170,8 +158,8 @@ console.log(counts);
 ## ⏱️ Scaling with Multiple Workers
 
 * Set `maxConcurrent` to run multiple processing loops per job type.
-* Deploy workers across servers to **scale horizontally**.
-* Jobs are **claimed atomically**, ensuring no duplicates.
+* Deploy workers across servers to scale horizontally.
+* Jobs are claimed atomically, preventing duplicates.
 
 ---
 
@@ -180,6 +168,7 @@ console.log(counts);
 ```js
 const stats = queue.getStats();
 console.log(stats);
+
 /*
 {
   totalAdded: 1000,
@@ -209,11 +198,11 @@ await queue.close();
 
 ## 📌 Key Takeaways
 
-* Fully **high-volume capable** with **parallel workers**.
-* **Memory-safe batching** and **adaptive flushing**.
-* Supports **distributed multi-server deployments**.
-* Robust **retry and failure handling**.
-* Simple MongoDB-backed alternative to Redis/Bull/RabbitMQ/Kafka.
+* Fully high-volume capable with parallel workers.
+* Memory-safe batching and adaptive flushing.
+* Distributed multi-server deployments supported.
+* Robust retry and failure handling.
+* Simple MongoDB-backed alternative to Redis, Bull, RabbitMQ, Kafka.
 
 ---
 
