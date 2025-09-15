@@ -29,7 +29,7 @@ Install via npm:
 npm install mbqueue
 ```
 
-GitHub: [https://github.com/ManojGowda89/mbqueue](https://github.com/ManojGowda89/mbqueue)
+
 NPM: [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
 
 ---
@@ -207,8 +207,6 @@ await queue.close();
 ---
 
 ## 📂 Links
-
-* GitHub: [https://github.com/ManojGowda89/mbqueue](https://github.com/ManojGowda89/mbqueue)
 * NPM: [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
 
 ---
