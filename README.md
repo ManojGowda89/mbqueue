@@ -8,16 +8,16 @@ It is lightweight, robust, and scalable, making it ideal for **emails, notificat
 
 ## 🚀 Features
 
-* High-volume job insertion: Rapidly add thousands of jobs per second.
-* Batch processing with adaptive flushing: Jobs are batched in memory and flushed efficiently to MongoDB.
-* Concurrent workers: Process jobs in parallel using multiple workers per job type.
-* Memory management: Monitors system memory and triggers emergency flushes if needed.
-* Robust error handling: Retries failed jobs with exponential backoff and tracks job attempts.
-* Job prioritization: Supports priority-based processing.
-* Distributed architecture: Add jobs from multiple servers and process them across multiple servers without duplication.
-* Scalable: Easily scale horizontally by adding more worker servers.
-* MongoDB indexes: Optimized for fast job retrieval and processing.
-* Real-time statistics: Get queue stats, job counts, memory usage, and performance metrics.
+* **High-volume job insertion**: Rapidly add thousands of jobs per second.
+* **Batch processing with adaptive flushing**: Jobs are batched in memory and flushed efficiently to MongoDB.
+* **Concurrent workers**: Process jobs in parallel using multiple workers per job type.
+* **Memory management**: Monitors system memory and triggers emergency flushes if needed.
+* **Robust error handling**: Retries failed jobs with exponential backoff and tracks job attempts.
+* **Job prioritization**: Supports priority-based processing.
+* **Distributed architecture**: Add jobs from multiple servers and process them across multiple servers without duplication.
+* **Scalable**: Easily scale horizontally by adding more worker servers.
+* **MongoDB indexes**: Optimized for fast job retrieval and processing.
+* **Real-time statistics**: Get queue stats, job counts, memory usage, and performance metrics.
 
 ---
 
@@ -25,10 +25,9 @@ It is lightweight, robust, and scalable, making it ideal for **emails, notificat
 
 Install via npm:
 
-```
+```bash
 npm install mbqueue
 ```
-
 
 NPM: [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
 
@@ -93,6 +92,95 @@ console.log(counts);
 
 ---
 
+## 🔨 Example Setup
+
+To see **mbqueue** in action, run a **worker** (job processor) and a **producer** (job adder).
+
+### 1️⃣ Worker (Job Processor)
+
+```js
+// worker.js
+const QueueManager = require('mbqueue');
+
+async function main() {
+  const queue = new QueueManager('mongodb://localhost:27017', 'job_queue', {
+    batchSize: 5000,
+    batchTimeout: 10000,
+    maxPendingJobs: 500000
+  });
+
+  await queue.connect();
+
+  // Start processing "email" jobs
+  queue.startProcessing('email', async (data) => {
+    console.log(`📩 Sending email to ${data.name} at ${data.email}`);
+    await new Promise(res => setTimeout(res, 50)); // simulate sending
+    return { sent: true, timestamp: new Date() };
+  }, {
+    batchSize: 1,
+    maxConcurrent: 10
+  });
+}
+
+main().catch(console.error);
+```
+
+---
+
+### 2️⃣ Producer (Job Adder)
+
+```js
+// producer.js
+const QueueManager = require('mbqueue');
+const { faker } = require('@faker-js/faker');
+
+async function main() {
+  const queue = new QueueManager(
+    'mongodb://localhost:27017',
+    'job_queue',
+    {
+      batchSize: 5000,
+      batchTimeout: 10000,
+      maxPendingJobs: 500000
+    }
+  );
+
+  await queue.connect();
+
+  // Generate random name & email
+  const randomName = faker.person.fullName();
+  const randomEmail = faker.internet.email({ firstName: randomName.split(" ")[0] });
+
+  await queue.addJob('email', { name: randomName, email: randomEmail });
+
+  console.log(`✅ Job added successfully -> Name: ${randomName}, Email: ${randomEmail}`);
+}
+
+main().catch(console.error);
+```
+
+---
+
+### ▶️ Running the Example
+
+1. Start MongoDB locally (`mongodb://localhost:27017`).
+
+2. Run the worker to begin processing jobs:
+
+   ```bash
+   node worker.js
+   ```
+
+3. In another terminal, run the producer to add jobs:
+
+   ```bash
+   node producer.js
+   ```
+
+4. The worker will automatically process jobs added by the producer 🎉.
+
+---
+
 ## 🏗️ Distributed Setup
 
 **mbqueue** supports multi-server producers and workers:
@@ -119,17 +207,17 @@ Worker 1   Worker 2   Worker 3
 
 ## 🔹 Job Lifecycle
 
-1. Job creation: Added to an in-memory batch.
-2. Batch flush: Flushed to MongoDB when batch size or timeout is reached.
-3. Processing: Workers claim pending jobs atomically and update status to `processing`.
-4. Completion: Successfully processed jobs moved to `completed_jobs`.
-5. Failure/Retry: Failed jobs retried with exponential backoff until `maxAttempts`, else moved to `failed_jobs`.
+1. **Job creation** → Added to an in-memory batch.
+2. **Batch flush** → Flushed to MongoDB when batch size or timeout is reached.
+3. **Processing** → Workers claim pending jobs atomically and update status to `processing`.
+4. **Completion** → Successfully processed jobs moved to `completed_jobs`.
+5. **Failure/Retry** → Failed jobs retried with exponential backoff until `maxAttempts`, else moved to `failed_jobs`.
 
 ---
 
 ## ⚡ High-Volume & Memory Management
 
-* Handles hundreds of thousands of jobs in memory.
+* Handles **hundreds of thousands of jobs in memory**.
 * Memory monitoring ensures stability, including:
 
   * Automatic batch flush when memory exceeds 80%.
@@ -207,8 +295,8 @@ await queue.close();
 ---
 
 ## 📂 Links
-* NPM: [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
 
----
+* **NPM:** [https://www.npmjs.com/package/mbqueue](https://www.npmjs.com/package/mbqueue)
+
 
 
