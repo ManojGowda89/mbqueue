@@ -39,7 +39,7 @@ class JobProcessor {
       this._processLoop(jobType, i);
     }
     
-    console.log(`🚀 Started processing "${jobType}" jobs (batch size: ${this.jobOptions[jobType].batchSize}, concurrency: ${this.jobOptions[jobType].maxConcurrent})`);
+    // console.log(`🚀 Started processing "${jobType}" jobs (batch size: ${this.jobOptions[jobType].batchSize}, concurrency: ${this.jobOptions[jobType].maxConcurrent})`);
   }
 
   /**
@@ -48,7 +48,7 @@ class JobProcessor {
    */
   stopProcessing(jobType) {
     this.isProcessing[jobType] = false;
-    console.log(`⏹️ Stopped processing "${jobType}" jobs`);
+    // console.log(`⏹️ Stopped processing "${jobType}" jobs`);
   }
 
   /**
@@ -73,7 +73,7 @@ class JobProcessor {
         .toArray();
 
       if (jobs.length > 0) {
-        console.log(`📤 Worker ${workerId}: Processing batch of ${jobs.length} "${jobType}" jobs`);
+        // console.log(`📤 Worker ${workerId}: Processing batch of ${jobs.length} "${jobType}" jobs`);
         emptyBatchCount = 0; // Reset empty batch counter
         currentBackoff = this.jobOptions[jobType].pollInterval; // Reset backoff
         
@@ -91,7 +91,7 @@ class JobProcessor {
             await this._complete(jobType, job._id, result);
             this.stats.totalProcessed++;
           } catch (err) {
-            console.error(`Error processing ${jobType} job ${job._id}:`, err);
+            // console.error(`Error processing ${jobType} job ${job._id}:`, err);
             await this._error(jobType, job._id, err);
           }
         }
@@ -119,7 +119,7 @@ class JobProcessor {
         setTimeout(() => this._processLoop(jobType, workerId), currentBackoff);
       }
     } catch (err) {
-      console.error(`Error in process loop for "${jobType}" worker ${workerId}:`, err);
+      // console.error(`Error in process loop for "${jobType}" worker ${workerId}:`, err);
       // On error, wait a bit and try again with increased backoff
       const errorBackoff = Math.min(currentBackoff * 2, this.jobOptions[jobType].maxBackoffInterval);
       

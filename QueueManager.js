@@ -200,7 +200,7 @@ class QueueManager {
   _handleMemoryPressure(memoryPercent) {
     console.warn(`Flushing all batches due to memory pressure (${memoryPercent.toFixed(1)}%)`);
     this._flushAllBatches(true).catch(err => {
-      console.error('Error flushing batches during memory pressure:', err);
+      // console.error('Error flushing batches during memory pressure:', err);
     });
   }
 
@@ -258,10 +258,10 @@ class QueueManager {
         const insertTime = Date.now() - startTime;
         this.monitoring.updateStats({ lastDbWriteTime: insertTime });
         
-        console.log(`📥 Inserted batch of ${batchToInsert.length} "${jobType}" jobs in ${insertTime}ms (${Math.round(batchToInsert.length / insertTime * 1000)} jobs/sec)`);
+        // console.log(`📥 Inserted batch of ${batchToInsert.length} "${jobType}" jobs in ${insertTime}ms (${Math.round(batchToInsert.length / insertTime * 1000)} jobs/sec)`);
       }
     } catch (err) {
-      console.error(`Error flushing batch for ${jobType}:`, err);
+      // console.error(`Error flushing batch for ${jobType}:`, err);
       
       // Handle flush error in batch manager
       this.batchManager.handleFlushError(

@@ -58,7 +58,7 @@ class BatchManager {
     
     this.batchTimers[jobType] = setTimeout(() => {
       flushCallback(jobType).catch(err => {
-        console.error(`Error in timed batch flush for ${jobType}:`, err);
+        // console.error(`Error in timed batch flush for ${jobType}:`, err);
         this.resetBatchTimer(jobType, flushCallback);
       });
     }, this.batchTimeout);
@@ -106,7 +106,7 @@ class BatchManager {
       60000
     );
     
-    console.log(`Will retry flushing ${jobType} batch in ${Math.round(retryDelay/1000)}s`);
+    // console.log(`Will retry flushing ${jobType} batch in ${Math.round(retryDelay/1000)}s`);
     
     // Override the timer with a retry
     if (this.batchTimers[jobType]) {
